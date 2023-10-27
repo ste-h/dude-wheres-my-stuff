@@ -77,7 +77,7 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 )
 @PluginDependency(ItemIdentificationPlugin.class)
 public class DudeWheresMyStuffPlugin extends Plugin {
-
+  public Deathpile soonestDeathpile; // remove
   private static final String CONFIG_KEY_IS_MEMBER = "isMember";
   private static final String CONFIG_KEY_SAVE_MIGRATED = "saveMigrated";
 
@@ -122,9 +122,6 @@ public class DudeWheresMyStuffPlugin extends Plugin {
   private ClientState clientState = ClientState.LOGGED_OUT;
   private boolean pluginStartedAlreadyLoggedIn;
   private String profileKey;
-  public String soonestExpiringDeathpileMessage = null;
-  public int soonestExpiringDeathpileMinutesLeft;
-  public boolean soonestExpiringDeathpileColor = false;
   @Getter private String previewProfileKey;
 
   /**
@@ -450,24 +447,10 @@ public class DudeWheresMyStuffPlugin extends Plugin {
     }
   }
 
-  void updateSoonestDeathPileOverlay() {
-    Deathpile soonestExpiringDeathpile = deathStorageManager.findSoonestExpiringDeathpile();
-
-    if (soonestExpiringDeathpile != null) {
-      soonestExpiringDeathpileMessage = deathStorageManager.findSoonestExpiringDeathpileString();
-      // Switches between two overlay colors
-      soonestExpiringDeathpileColor = !soonestExpiringDeathpileColor;
-      soonestExpiringDeathpileMinutesLeft = (int) Math.floor(
-          (soonestExpiringDeathpile.getExpiryMs() - System.currentTimeMillis()) / 60_000f);
-    } else {
-      // Reset / clear variables if there's no death pile
-      soonestExpiringDeathpileMessage = null;
-      soonestExpiringDeathpileMinutesLeft = -1;
-    }
-  }
-
   @Subscribe
   void onGameTick(GameTick gameTick) {
+    soonestDeathpile = deathStorageManager.findSoonestExpiringDeathpile(); // remove
+
     if (clientState == ClientState.LOGGED_OUT) {
       return;
     }
@@ -510,8 +493,6 @@ public class DudeWheresMyStuffPlugin extends Plugin {
 
       return;
     }
-
-    updateSoonestDeathPileOverlay();
 
     ItemContainerWatcher.onGameTick(this);
     storageManagerManager.onGameTick();

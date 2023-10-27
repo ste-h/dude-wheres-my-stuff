@@ -44,6 +44,7 @@ public class SoonestDeathpileOverlay extends Overlay {
     } else {
       // Reset / clear variables if there's no death pile
       regionName = "Unknown";
+      soonestExpiringDeathpileMinutesLeft = -1;
     }
   }
 

@@ -77,7 +77,6 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 )
 @PluginDependency(ItemIdentificationPlugin.class)
 public class DudeWheresMyStuffPlugin extends Plugin {
-  public Deathpile soonestDeathpile; // remove
   private static final String CONFIG_KEY_IS_MEMBER = "isMember";
   private static final String CONFIG_KEY_SAVE_MIGRATED = "saveMigrated";
 
@@ -123,6 +122,7 @@ public class DudeWheresMyStuffPlugin extends Plugin {
   private boolean pluginStartedAlreadyLoggedIn;
   private String profileKey;
   @Getter private String previewProfileKey;
+  @Getter public Deathpile soonestDeathpile;
 
   /**
    * Displays a confirmation popup to the user and returns true if they confirmed it.
@@ -449,7 +449,6 @@ public class DudeWheresMyStuffPlugin extends Plugin {
 
   @Subscribe
   void onGameTick(GameTick gameTick) {
-    soonestDeathpile = deathStorageManager.findSoonestExpiringDeathpile(); // remove
 
     if (clientState == ClientState.LOGGED_OUT) {
       return;
@@ -493,6 +492,9 @@ public class DudeWheresMyStuffPlugin extends Plugin {
 
       return;
     }
+
+    soonestDeathpile = deathStorageManager.getSoonestExpiringDeathpile();
+    soonestDeathpileOverlay.updateSoonestDeathpileOverlay();
 
     ItemContainerWatcher.onGameTick(this);
     storageManagerManager.onGameTick();

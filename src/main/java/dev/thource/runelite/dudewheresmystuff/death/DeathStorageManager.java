@@ -229,10 +229,10 @@ public class DeathStorageManager extends StorageManager<DeathStorageType, DeathS
     updateWorldMapPoints();
   }
 
-  public Deathpile findSoonestExpiringDeathpile() {
+  public Deathpile getSoonestExpiringDeathpile() {
     return getDeathpiles()
         .filter(deathpile -> !deathpile.hasExpired())
-        .min(Comparator.comparing(Deathpile::getExpiryTime))
+        .min(Comparator.comparing(Deathpile::getExpiryMs))
         .orElse(null);
   }
 

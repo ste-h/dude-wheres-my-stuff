@@ -9,36 +9,28 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import javax.inject.Inject;
-import net.runelite.api.Client;
-import net.runelite.api.events.GameTick;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 
 public class SoonestDeathpileOverlay extends Overlay {
-  private final DudeWheresMyStuffPlugin plugin;
-  private final DudeWheresMyStuffConfig config;
-  private DeathStorageManager deathStorageManager;
-  private int soonestExpiringDeathpileMinutesLeft = -1;
-  private boolean soonestExpiringDeathpileColor = false;
+
+  @Inject DudeWheresMyStuffPlugin plugin;
+  @Inject DudeWheresMyStuffConfig config;
+
   private Deathpile soonestExpiringDeathpile;
+  private int soonestExpiringDeathpileMinutesLeft = -1;
+  private boolean soonestExpiringDeathpileColor;
   private String regionName = "Unknown";
 
   @Inject
-  public SoonestDeathpileOverlay(DeathStorageManager deathStorageManager,
-      DudeWheresMyStuffPlugin plugin, DudeWheresMyStuffConfig config) {
+  public SoonestDeathpileOverlay() {
     setPosition(OverlayPosition.ABOVE_CHATBOX_RIGHT);
-    this.deathStorageManager = deathStorageManager;
-    this.plugin = plugin;
-    this.config = config;
   }
 
-  private void updateSoonestDeathPileOverlay() {
-    // This doesn't work, death pile is always null, unsure how to fix
-//    soonestExpiringDeathpile = deathStorageManager.findSoonestExpiringDeathpile();
+  // Updates every game tick
+  public void updateSoonestDeathpileOverlay() {
 
-    // This works
     soonestExpiringDeathpile = plugin.soonestDeathpile;
 
     if (soonestExpiringDeathpile != null) {
@@ -51,24 +43,19 @@ public class SoonestDeathpileOverlay extends Overlay {
           (soonestExpiringDeathpile.getExpiryMs() - System.currentTimeMillis()) / 60_000f);
     } else {
       // Reset / clear variables if there's no death pile
-      System.out.println("Death pile is null");
       regionName = "Unknown";
-      soonestExpiringDeathpileMinutesLeft = -1;
     }
   }
 
   // If there is a Death pile expiring soon that matches the config criteria
   private boolean shouldRenderOverlay() {
-    updateSoonestDeathPileOverlay();
-
-    return soonestExpiringDeathpile != null &&
-        soonestExpiringDeathpileMinutesLeft <= config.timeUntilDeathpileExpires() &&
-        config.warnDeathPileExpiring();
+    return soonestExpiringDeathpile != null
+        && soonestExpiringDeathpileMinutesLeft <= config.timeUntilDeathpileExpires()
+        && config.warnDeathPileExpiring();
   }
 
   @Override
   public Dimension render(Graphics2D graphics) {
-
     if (shouldRenderOverlay()) {
       return renderText(graphics);
     }
@@ -79,11 +66,11 @@ public class SoonestDeathpileOverlay extends Overlay {
     Font font = FontManager.getRunescapeFont()
         .deriveFont(Font.PLAIN, config.warnDeathpileExpiringFontSize());
     graphics.setFont(font);
-    // Change to suggestion
-//    String deathpileExpiringText = "Your " + regionName + " deathpile " + soonestExpiringDeathpile.getExpireText().toLowerCase();
-    String deathpileExpiringText = soonestExpiringDeathpile.getExpireText().toLowerCase();
+    String deathpileExpiringText =
+        "Your " + regionName + " deathpile " + soonestExpiringDeathpile.getExpireText()
+            .toLowerCase();
 
-    // Alternates between two colors, this could be customized later
+    // Alternates between two colors, this could be customized by the user later
     Color textColor = soonestExpiringDeathpileColor ? Color.RED : Color.WHITE;
     graphics.setColor(textColor);
 
